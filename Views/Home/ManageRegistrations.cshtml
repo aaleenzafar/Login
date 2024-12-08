@@ -1,0 +1,124 @@
+﻿@using Login.Areas.Identity.Data;
+@model IEnumerable<ApplicationUser>
+
+<h2>Manage Users</h2>
+
+<!-- Radio Buttons for Filtering -->
+<div class="mb-4">
+    <form method="get" id="filterForm">
+        <input type="radio" name="filter" id="allUsers" value="all"
+        @(Context.Request.Query["filter"] == "all" || !Context.Request.Query.ContainsKey("filter") ? "checked" : "")
+               onchange="this.form.submit()" />
+        <label for="allUsers">All Users</label>
+        <br />
+        <br />
+        <input type="radio" name="filter" id="faculty" value="faculty"
+        @(Context.Request.Query["filter"] == "faculty" ? "checked" : "")
+               onchange="this.form.submit()" />
+        <label for="faculty">Faculty</label>
+        <br />
+        <br />
+        <input type="radio" name="filter" id="students" value="students"
+        @(Context.Request.Query["filter"] == "students" ? "checked" : "")
+               onchange="this.form.submit()" />
+        <label for="students">Students</label>
+        <br />
+        <br />
+        <input type="radio" name="filter" id="notApproved" value="notApproved"
+        @(Context.Request.Query["filter"] == "notApproved" ? "checked" : "")
+               onchange="this.form.submit()" />
+        <label for="notApproved">Not Approved</label>
+        <br />
+    </form>
+</div>
+
+<!-- Table for Displaying Users -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>S.NO</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Approval Status</th>
+            <th>Additional Info</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            int serialNo = 1;
+
+            // Filter the users based on the selected filter value
+            IEnumerable<ApplicationUser> filteredUsers = Model;
+
+            string filter = Context.Request.Query["filter"];
+
+            if (filter == "faculty")
+            {
+                filteredUsers = Model.Where(user => user.Role.Contains("Faculty", StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filter == "students")
+            {
+                filteredUsers = Model.Where(user => user.Role.Contains("Student", StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filter == "notApproved")
+            {
+                // Exclude users with empty Role or "Admin" from "Not Approved" filter
+                filteredUsers = Model.Where(user =>
+                !string.IsNullOrEmpty(user.Role) &&
+                !user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) &&
+                !user.IsApproved);
+            }
+            else
+            {
+                // Exclude users with empty Role or "Admin"
+                filteredUsers = filteredUsers.Where(user =>
+                !string.IsNullOrEmpty(user.Role) && !user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var user in filteredUsers)
+            {
+                var additionalInfo = user.Role.Contains("Student", StringComparison.OrdinalIgnoreCase)
+                ? $"Roll No: {user.RollNo ?? "N/A"}, Class: {user.Class?.ToString() ?? "N/A"}, Section: {user.Section?.ToString() ?? "N/A"}"
+                : user.Role.Contains("Faculty", StringComparison.OrdinalIgnoreCase)
+                ? $"Employee No: {user.EmployeeNo ?? "N/A"}, Spec: {user.Specification ?? "N/A"}"
+                : "N/A";
+
+                <tr>
+                    <td>@serialNo</td> <!-- Display the current serial number -->
+                    <td>@(user.FullName ?? "N/A")</td>
+                    <td>@(user.Email ?? "N/A")</td>
+                    <td>@(user.Role ?? "N/A")</td>
+                    <td>
+                        @if (user.IsApproved)
+                        {
+                            <span class="text-success">Approved</span>
+                        }
+                        else
+                        {
+                            <span class="text-warning">Pending Approval</span>
+                        }
+                    </td>
+                    <td>@additionalInfo</td>
+                    <td>
+                        @if (!user.IsApproved)
+                        {
+                            <form action="/Home/ApproveUser" method="post" style="display:inline;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                        }
+                        <form action="/Home/DeclineUser" method="post" style="display:inline;">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                        </form>
+                    </td>
+                </tr>
+
+                serialNo++;
+            }
+        }
+    </tbody>
+</table>

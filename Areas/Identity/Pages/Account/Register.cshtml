@@ -1,0 +1,111 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2>Create a new account.</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <!-- Full Name -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName" class="form-control" aria-required="true" placeholder="Full Name" />
+                <label asp-for="Input.FullName">Full Name</label>
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" aria-required="true" placeholder="Email" />
+                <label asp-for="Input.Email">Email</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+
+            <!-- Role Selection -->
+            <div class="form-floating mb-3">
+                <select asp-for="Input.Role" class="form-select" id="roleSelector">
+                    <option value="">Select Role</option>
+                    <option value="Student">Student</option>
+                    <option value="Faculty">Faculty</option>
+                </select>
+                <label asp-for="Input.Role">Role</label>
+                <span asp-validation-for="Input.Role" class="text-danger"></span>
+            </div>
+
+            <!-- Student Fields -->
+            <div id="studentFields" style="display: none;">
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.RollNo" class="form-control" placeholder="Roll No" />
+                    <label asp-for="Input.RollNo">Roll No</label>
+                    <span asp-validation-for="Input.RollNo" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Class" class="form-control" type="number" placeholder="Class" />
+                    <label asp-for="Input.Class">Class</label>
+                    <span asp-validation-for="Input.Class" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Section" class="form-control" maxlength="1" placeholder="Section" />
+                    <label asp-for="Input.Section">Section</label>
+                    <span asp-validation-for="Input.Section" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.AdmissionDate" class="form-control" type="date" placeholder="Admission Date" />
+                    <label asp-for="Input.AdmissionDate">Admission Date</label>
+                    <span asp-validation-for="Input.AdmissionDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Faculty Fields -->
+            <div id="facultyFields" style="display: none;">
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.EmployeeNO" class="form-control" placeholder="Employee No" />
+                    <label asp-for="Input.EmployeeNO">Employee No</label>
+                    <span asp-validation-for="Input.EmployeeNO" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Specification" class="form-control" placeholder="Specification" />
+                    <label asp-for="Input.Specification">Specification</label>
+                    <span asp-validation-for="Input.Specification" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.JoiningDate" class="form-control" type="date" placeholder="Joining Date" />
+                    <label asp-for="Input.JoiningDate">Joining Date</label>
+                    <span asp-validation-for="Input.JoiningDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="Password" />
+                <label asp-for="Input.Password">Password</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Confirm Password" />
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("roleSelector").addEventListener("change", function () {
+            var role = this.value;
+            document.getElementById("studentFields").style.display = role === "Student" ? "block" : "none";
+            document.getElementById("facultyFields").style.display = role === "Faculty" ? "block" : "none";
+        });
+    </script>
+}
